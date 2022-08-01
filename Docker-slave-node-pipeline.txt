@@ -1,0 +1,29 @@
+pipeline {
+    agent {label "docker-build-node"}
+    environment {
+        DOCKERHUB_CREDENTIALS = credentials('docker-hub-oguzcan733')
+    }
+    stages {
+        stage('SCM Checkout') {
+            steps {
+                git 'https://github.com/oguzcan733/nodejs-demo.git'
+            
+            }
+        }
+        stage('Build Docker Image') {
+            steps {
+                sh 'docker build -t oguzcan733/nodeapp:$BUILD_NUMBER .'
+            }
+        }
+        stage('login to dockerhub') {
+            steps {
+                sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+            }
+        }
+        stage('push image') {
+            steps {
+                sh 'docker push oguzcan733/nodeapp:$BUILD_NUMBER'
+            }
+        }
+    }
+}
